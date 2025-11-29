@@ -1,0 +1,11 @@
+// MAIN COMPONENTS FILE
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+
+
+.flatpickr-day.selected {
+    background-color: #184A7C !important;
+}

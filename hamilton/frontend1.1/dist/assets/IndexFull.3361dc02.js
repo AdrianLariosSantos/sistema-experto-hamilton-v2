@@ -1,0 +1,1 @@
+import{a4 as o,bq as n,aG as t,ay as s,W as a,a2 as c}from"./index.434b792e.js";const r=o({components:{},setup(){}}),p={class:"min-h-screen"};function _(i,d,m,l,u,f){const e=t("router-view");return s(),a("div",p,[c(e)])}const x=n(r,[["render",_]]);export{x as default};
