@@ -57,7 +57,7 @@ class Preguntas(models.Model):
     orden = models.IntegerField(null=True, blank=True)
     pregunta = models.CharField(max_length=150, blank=True, null=True, verbose_name='pregunta')
     descripcion = models.CharField(max_length=150, blank=True, null=True, verbose_name='descripcion')
-    cateogria = models.ForeignKey(Categorias, on_delete=models.CASCADE, related_name='preguntas')
+    categoria = models.ForeignKey(Categorias, on_delete=models.CASCADE, related_name='preguntas')
     activo = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -66,7 +66,7 @@ class Preguntas(models.Model):
         db_table = 'cat_preguntas'
     
     def __str__(self):
-        return f"{self.numero} | {self.descripcion} | {self.activo}"
+        return f"{self.orden} | {self.descripcion} | {self.activo}"
 
 
 class Generos(models.Model):
