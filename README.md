@@ -11,8 +11,10 @@ Aplicación web que permite realizar evaluaciones psicológicas mediante cuestio
 ### Backend
 - **Django 5.2** - Framework web
 - **Django REST Framework** - API REST
+- **Simple JWT** - Autenticación con tokens JWT
 - **PostgreSQL** - Base de datos
 - **Python 3.12**
+- **CORS Headers** - Manejo de CORS
 
 ### Frontend
 - **Vue 3** - Framework JavaScript
@@ -54,11 +56,14 @@ cd hamilton
 # Ejecutar migraciones
 python manage.py migrate
 
+# Cargar roles iniciales
+psql -U tu_usuario -d nombre_base_datos -f roles_iniciales.sql
+
 # Cargar datos iniciales (opcional)
 psql -U tu_usuario -d nombre_base_datos -f preguntas.sql
 psql -U tu_usuario -d nombre_base_datos -f respuestas.sql
 
-# Crear superusuario
+# Crear superusuario administrativo
 python manage.py createsuperuser
 
 # Ejecutar servidor
@@ -84,7 +89,8 @@ npm run dev
 sistema-experto/
 ├── hamilton/                  # Proyecto Django
 │   ├── Catalogos/            # App de catálogos (géneros, edades, preguntas)
-│   ├── Entrenamiento/        # App de datos de entrenamiento
+│   ├── Entrenamiento/        # App de evaluaciones psicológicas
+│   ├── Usuarios/             # App de autenticación y usuarios
 │   ├── Apis/                 # Configuración de URLs de API
 │   ├── helpers/              # Utilidades y respuestas
 │   └── hamilton/             # Configuración principal
@@ -101,6 +107,11 @@ sistema-experto/
 
 ## 🔧 Modelos Principales
 
+### Usuarios
+- **Rol**: Roles del sistema (Administrativo, Psicólogo, Paciente)
+- **Usuario**: Modelo extendido de usuario con información adicional
+- **DatosPaciente**: Información específica de pacientes
+
 ### Catalogos
 - **Categorias**: Categorías de preguntas (Ansiedad, Depresión)
 - **Preguntas**: Banco de preguntas de la escala Hamilton
@@ -112,21 +123,81 @@ sistema-experto/
 - **Parentesco**: Relaciones familiares
 
 ### Entrenamiento
-- **Entrenamiento**: Datos históricos para análisis y predicción
+- **Entrenamiento**: Evaluaciones psicológicas de pacientes (relacionado con Usuario)
 
 ## 🌐 API Endpoints
 
+### Autenticación
+```
+POST   /api/v1/auth/login/          - Iniciar sesión
+POST   /api/v1/auth/logout/         - Cerrar sesión (blacklist token)
+POST   /api/v1/auth/refresh/        - Refrescar token de acceso
+GET    /api/v1/auth/me/             - Obtener datos del usuario autenticado
+```
+
+### Usuarios
+```
+GET    /api/v1/usuarios/            - Listar usuarios
+POST   /api/v1/usuarios/            - Crear usuario (solo Admin)
+GET    /api/v1/usuarios/{id}/       - Detalle de usuario
+PUT    /api/v1/usuarios/{id}/       - Actualizar usuario
+PATCH  /api/v1/usuarios/{id}/       - Actualizar parcial
+DELETE /api/v1/usuarios/{id}/       - Desactivar usuario (solo Admin)
+POST   /api/v1/usuarios/{id}/change_password/ - Cambiar contraseña
+GET    /api/v1/usuarios/pacientes/  - Listar solo pacientes
+GET    /api/v1/usuarios/psicologos/ - Listar solo psicólogos (solo Admin)
+```
+
+### Roles
+```
+GET    /api/v1/roles/               - Listar roles (solo Admin)
+```
+
+### Catálogos
 ```
 /api/v1/catalogos/
-  ├── catalogo-categorias/
-  ├── catalogo-generos/
-  ├── catalogo-opciones/
-  ├── catalogo-preguntas/
-  ├── catalogo-edades/
-  └── catalogo-sepomex/
-
-/api/v1/entrenamiento/
+  ├── categorias/
+  ├── generos/
+  ├── opciones/
+  ├── preguntas/
+  ├── sepomex/
+  ├── edades/
+  ├── escolaridad/
+  ├── ocupacion/
+  └── parentesco/
 ```
+
+### Evaluaciones
+```
+GET    /api/v1/entrenamiento/                    - Listar evaluaciones
+POST   /api/v1/entrenamiento/                    - Crear evaluación (Admin/Psicólogo)
+GET    /api/v1/entrenamiento/{id}/               - Detalle de evaluación
+PUT    /api/v1/entrenamiento/{id}/               - Actualizar evaluación (Admin/Psicólogo)
+DELETE /api/v1/entrenamiento/{id}/               - Desactivar evaluación (solo Admin)
+GET    /api/v1/entrenamiento/por_paciente/       - Evaluaciones por paciente
+GET    /api/v1/entrenamiento/mis_evaluaciones/   - Mis evaluaciones (Pacientes)
+GET    /api/v1/entrenamiento/estadisticas/       - Estadísticas (Admin/Psicólogo)
+```
+
+## 👥 Roles y Permisos
+
+### Administrativo
+- Acceso completo al sistema
+- Gestión de usuarios (crear, editar, eliminar)
+- Gestión de evaluaciones
+- Acceso a estadísticas
+- Gestión de catálogos
+
+### Psicólogo
+- Ver y gestionar pacientes
+- Crear y editar evaluaciones
+- Ver estadísticas
+- Acceso a catálogos
+
+### Paciente
+- Ver solo sus propias evaluaciones
+- Ver sus datos personales
+- Actualizar su perfil
 
 ## 🔐 Variables de Entorno
 
